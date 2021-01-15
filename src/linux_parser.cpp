@@ -11,11 +11,11 @@ using std::string;
 using std::to_string;
 using std::vector;
 
-// DONE: An example of how to read data from the filesystem
+// Reads and returns the Operating System (string)
 string LinuxParser::OperatingSystem() {
   string line;
   string key;
-  string value;
+  string value; 
   std::ifstream filestream(kOSPath);
   if (filestream.is_open()) {
     while (std::getline(filestream, line)) {
@@ -34,7 +34,7 @@ string LinuxParser::OperatingSystem() {
   return value;
 }
 
-// DONE: An example of how to read data from the filesystem
+// Reads and returns the kernel version (string)
 string LinuxParser::Kernel() {
   string os, version, kernel;
   string line;
@@ -67,24 +67,20 @@ vector<int> LinuxParser::Pids() {
   return pids;
 }
 
-// TODO: Read and return the system memory utilization in percent
+// Reads and returns the system memory utilization in percent
 float LinuxParser::MemoryUtilization() { 
-  string line;
-  string key;
-  string value;
-  string unit;
-  float MemTotal;
-  float MemFree;
+  string line, key, unit;
+  float value, MemTotal, MemFree;
   std::ifstream filestream(kProcDirectory + kMeminfoFilename);
   if (filestream.is_open()) {
     while (std::getline(filestream, line)) {
       std::istringstream linestream(line);
       while (linestream >> key >> value >> unit) {
         if (key == "MemTotal:") {
-          MemTotal = std::stof(value);
+          MemTotal = value;
         }
         if (key == "MemFree:"){
-          MemFree = std::stof(value);
+          MemFree = value;
         }
       }
     }
@@ -94,7 +90,7 @@ float LinuxParser::MemoryUtilization() {
 
 // Reads and returns the system uptime
 long LinuxParser::UpTime() { 
-  string uptime, idle_process_time;
+  long uptime, idle_process_time;
   string line;
   std::ifstream stream(kProcDirectory + kUptimeFilename);
   if (stream.is_open()) {
@@ -102,7 +98,7 @@ long LinuxParser::UpTime() {
     std::istringstream linestream(line);
     linestream >> uptime >> idle_process_time;
   }
-  return std::stol(uptime);
+  return uptime;
 }
 
 // TODO: Read and return the number of jiffies for the system
@@ -118,21 +114,37 @@ long LinuxParser::ActiveJiffies() { return 0; }
 // TODO: Read and return the number of idle jiffies for the system
 long LinuxParser::IdleJiffies() { return 0; }
 
-// TODO: Read and return CPU utilization
-vector<string> LinuxParser::CpuUtilization() { return {}; }
+// Reads and returns CPU utilization times (vector<string>)
+vector<float> LinuxParser::CpuUtilization() { 
+  
+  string line, key;
+  float user, nice, system, idle, iowait, irq, softirq, steal;
+  std::ifstream filestream(kProcDirectory + kStatFilename);
+  if (filestream.is_open()) {
+    while (std::getline(filestream, line)) {
+      std::istringstream linestream(line);
+      while (linestream >> key >> user >> nice >> system >> idle >> iowait >> irq >> softirq >> steal) {
+        if (key == "cpu") {
+          vector<float> processor_times{user, nice, system, idle, iowait, irq, softirq, steal};
+          return processor_times;
+        }
+      }
+    }
+  }
+  }
 
 // Reads and returns the total number of processes
 int LinuxParser::TotalProcesses() { 
   string line;
   string key;
-  string value;
+  int value;
   std::ifstream filestream(kProcDirectory + kStatFilename);
   if (filestream.is_open()) {
     while (std::getline(filestream, line)) {
       std::istringstream linestream(line);
       while (linestream >> key >> value) {
         if (key == "processes") {
-          return std::stoi(value);
+          return value;
         }
       }
     }
@@ -143,14 +155,14 @@ int LinuxParser::TotalProcesses() {
 int LinuxParser::RunningProcesses() { 
   string line;
   string key;
-  string value;
+  int value;
   std::ifstream filestream(kProcDirectory + kStatFilename);
   if (filestream.is_open()) {
     while (std::getline(filestream, line)) {
       std::istringstream linestream(line);
       while (linestream >> key >> value) {
         if (key == "procs_running") {
-          return std::stoi(value);
+          return value;
         }
       }
     }
