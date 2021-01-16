@@ -20,23 +20,35 @@ float Process::CpuUtilization() {
     float sys_clock_ticks = sysconf(_SC_CLK_TCK);
     float total_time = ProcessCPUTimes[0] + ProcessCPUTimes[1] + ProcessCPUTimes[2] + ProcessCPUTimes[3];
     float seconds = LinuxParser::UpTime() - (ProcessCPUTimes[4]/sys_clock_ticks);
-    float cpu_usage = 100 * ((total_time / sys_clock_ticks) / seconds);
+    float cpu_usage = ((total_time / sys_clock_ticks) / seconds);
 
     return cpu_usage; 
 }
 
-// TODO: Return the command that generated this process
-string Process::Command() { return string(); }
+// Returns the command that generated this process
+string Process::Command() { return LinuxParser::Command(pid); }
 
-// TODO: Return this process's memory utilization
-string Process::Ram() { return string(); }
+// Returns this process's memory utilization
+string Process::Ram() { 
+    int rami = stoi(LinuxParser::Ram(pid));
+    rami = rami / 1000;
+    string ram = to_string(rami);
+
+    return ram; 
+}
 
 // Returns the user (name) that generated this process
 string Process::User() { return LinuxParser::User(pid); }
 
-// TODO: Return the age of this process (in seconds)
-long int Process::UpTime() { return 0; }
+// Returns the age of this process (in seconds)
+long int Process::UpTime() { 
+    vector<float> ProcessCPUTimes = LinuxParser::ProcessCpuUtilization(pid);
+    long uptime = LinuxParser::UpTime() - (ProcessCPUTimes[4]/sysconf(_SC_CLK_TCK));
 
-// TODO: Overload the "less than" comparison operator for Process objects
-// REMOVE: [[maybe_unused]] once you define the function
-bool Process::operator<(Process const& a[[maybe_unused]]) const { return true; }
+    return uptime; 
+}
+
+// Overloads the "less than" comparison operator for Process objects
+bool Process::operator<(Process const& a) const { 
+  return a.cpu_utilization < cpu_utilization;
+}
