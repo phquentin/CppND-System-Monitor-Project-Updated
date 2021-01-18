@@ -84,8 +84,9 @@ float LinuxParser::MemoryUtilization() {
         }
       }
     }
+    return (MemTotal-MemFree)/MemTotal;
   }
-  return (MemTotal-MemFree)/MemTotal;
+  return 0;
 }
 
 // Reads and returns the system uptime
@@ -100,19 +101,6 @@ long LinuxParser::UpTime() {
   }
   return uptime;
 }
-
-// TODO: Read and return the number of jiffies for the system
-long LinuxParser::Jiffies() { return 0; }
-
-// TODO: Read and return the number of active jiffies for a PID
-// REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) { return 0; }
-
-// TODO: Read and return the number of active jiffies for the system
-long LinuxParser::ActiveJiffies() { return 0; }
-
-// TODO: Read and return the number of idle jiffies for the system
-long LinuxParser::IdleJiffies() { return 0; }
 
 // Reads and returns CPU utilization times (vector<string>)
 vector<float> LinuxParser::CpuUtilization() { 
@@ -131,6 +119,8 @@ vector<float> LinuxParser::CpuUtilization() {
       }
     }
   }
+  vector<float> empty{0,0,0,0,0,0,0,0};
+  return empty;
   }
 
 // Reads and returns the total number of processes
@@ -149,6 +139,7 @@ int LinuxParser::TotalProcesses() {
       }
     }
   }
+  return 0;
 }
 
 // Reads and returns the number of running processes
@@ -167,6 +158,7 @@ int LinuxParser::RunningProcesses() {
       }
     }
   }
+  return 0;
 }
 
 // Reads and returns the command associated with a process
@@ -175,8 +167,8 @@ string LinuxParser::Command(int pid) {
   std::ifstream stream(kProcDirectory + to_string(pid) + kCmdlineFilename);
   if (stream.is_open()) {
     std::getline(stream, line);
-    return line;
   }
+  return line;
 }
 
 //Reads and returns the memory used by a process
@@ -193,6 +185,7 @@ string LinuxParser::Ram(int pid) {
       }
     }
   }
+  return value;
 }
 
 // Reads and returns the user ID associated with a process
@@ -210,6 +203,7 @@ string LinuxParser::Uid(int pid) {
       }
     }
   }
+  return value;
 }
 
 // Reads and returns the user associated with a process
@@ -229,11 +223,8 @@ string LinuxParser::User(int pid) {
       }
     }
   }
+  return value;
 }
-
-// TODO: Read and return the uptime of a process - not needed since already implemented in LinuxParser::ProcessCpuUtilization
-// REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::UpTime(int pid[[maybe_unused]]) { return 0; }
 
 // Reads and returns the process times 
 vector<float> LinuxParser::ProcessCpuUtilization(int pid){
@@ -249,5 +240,6 @@ vector<float> LinuxParser::ProcessCpuUtilization(int pid){
     vector<float> process_times{utime, stime, cutime, cstime, starttime};
     return process_times;
   }
-
+  vector<float> failure{0,0,0,0,0};
+  return failure;
 }
